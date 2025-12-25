@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokémon Item Database</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        :root {
+            --poke-red: #FF0000;
+            --poke-blue: #3B4CCA;
+            --poke-yellow: #FFDE00;
+            --poke-light: #F0F0F0;
+            --poke-dark: #2A2A2A;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--poke-red) 0%, var(--poke-blue) 100%);
+            color: white;
+            padding: 30px 0;
+            border-radius: 0 0 20px 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .category-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 30px;
+            gap: 10px;
+        }
+        
+        .tab {
+            padding: 12px 25px;
+            background-color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .tab:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .tab.active {
+            background-color: var(--poke-yellow);
+            color: var(--poke-dark);
+            box-shadow: 0 5px 12px rgba(255, 222, 0, 0.3);
+        }
+        
+        .items-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        .item-card {
+            background-color: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .item-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .item-header {
+            padding: 20px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .item-type {
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+        }
+        
+        .item-body {
+            padding: 20px;
+        }
+        
+        .item-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--poke-dark);
+        }
+        
+        .item-description {
+            color: #666;
+            margin-bottom: 15px;
+            font-size: 0.95rem;
+        }
+        
+        .item-effect {
+            background-color: #f9f9f9;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            border-left: 4px solid var(--poke-blue);
+        }
+        
+        .medicine { background-color: #FF6B6B; }
+        .battle { background-color: #4ECDC4; }
+        .key { background-color: #FFD166; }
+        .evolution { background-color: #9D4EDD; }
+        
+        .search-container {
+            max-width: 600px;
+            margin: 0 auto 30px;
+            position: relative;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 15px 20px 15px 50px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            outline: none;
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #777;
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.2rem;
+            color: #777;
+            grid-column: 1 / -1;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            margin-top: 40px;
+            color: #777;
+            font-size: 0.9rem;
+            border-top: 1px solid #eee;
+        }
+        
+        @media (max-width: 768px) {
+            .items-container {
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .tab {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .category-tabs {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .tab {
+                width: 90%;
+                justify-content: center;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1><i class="fas fa-pokemon-ball"></i> Pokémon Item Database</h1>
+            <p class="subtitle">Temukan informasi lengkap tentang berbagai item Pokémon termasuk obat-obatan, barang pertempuran, item kunci, dan alat evolusi</p>
+        </div>
+    </header>
+    
+    <main class="container">
+        <div class="search-container">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" class="search-input" id="searchInput" placeholder="Cari item Pokémon...">
+        </div>
+        
+        <div class="category-tabs">
+            <button class="tab active" data-category="all">
+                <i class="fas fa-th-list"></i> Semua Item
+            </button>
+            <button class="tab" data-category="medicine">
+                <i class="fas fa-pills"></i> Obat-obatan
+            </button>
+            <button class="tab" data-category="battle">
+                <i class="fas fa-fist-raised"></i> Barang Pertempuran
+            </button>
+            <button class="tab" data-category="key">
+                <i class="fas fa-key"></i> Item Kunci
+            </button>
+            <button class="tab" data-category="evolution">
+                <i class="fas fa-sync-alt"></i> Alat Evolusi
+            </button>
+        </div>
+        
+        <div class="items-container" id="itemsContainer">
+            <!-- Item akan dimuat melalui JavaScript -->
+        </div>
+    </main>
+    
+    <footer>
+        <div class="container">
+            <p>Pokémon Item Database &copy; 2023 - Data berdasarkan Pokémon Games</p>
+            <p>Dibuat untuk tujuan edukasi dan referensi</p>
+        </div>
+    </footer>
+
+    <script>
+        // Data item Pokémon
+        const pokemonItems = [
+            // Obat-obatan
+            {
+                id: 1,
+                name: "Potion",
+                category: "medicine",
+                description: "Obat standar yang memulihkan 20 HP Pokémon.",
+                effect: "Memulihkan 20 HP dari total HP Pokémon.",
+                icon: "fas fa-heart"
+            },
+            {
+                id: 2,
+                name: "Super Potion",
+                category: "medicine",
+                description: "Obat yang memulihkan lebih banyak HP daripada Potion biasa.",
+                effect: "Memulihkan 60 HP dari total HP Pokémon.",
+                icon: "fas fa-heartbeat"
+            },
+            {
+                id: 3,
+                name: "Hyper Potion",
+                category: "medicine",
+                description: "Obat kuat yang memulihkan HP dalam jumlah besar.",
+                effect: "Memulihkan 120 HP dari total HP Pokémon.",
+                icon: "fas fa-heart-circle-plus"
+            },
+            {
+                id: 4,
+                name: "Max Potion",
+                category: "medicine",
+                description: "Obat terkuat yang memulihkan semua HP Pokémon.",
+                effect: "Memulihkan semua HP Pokémon.",
+                icon: "fas fa-heart-circle-check"
+            },
+            {
+                id: 5,
+                name: "Full Restore",
+                category: "medicine",
+                description: "Obat lengkap yang memulihkan HP dan menyembuhkan status masalah.",
+                effect: "Memulihkan semua HP dan menyembuhkan semua status masalah Pokémon.",
+                icon: "fas fa-star-of-life"
+            },
+            {
+                id: 6,
+                name: "Antidote",
+                category: "medicine",
+                description: "Obat yang menyembuhkan keracunan.",
+                effect: "Menyembuhkan status poison dari Pokémon.",
+                icon: "fas fa-skull-crossbones"
+            },
+            {
+                id: 7,
+                name: "Awakening",
+                category: "medicine",
+                description: "Obat yang membangunkan Pokémon dari tidur.",
+                effect: "Membangunkan Pokémon dari status sleep.",
+                icon: "fas fa-bed"
+            },
+            {
+                id: 8,
+                name: "Revive",
+                category: "medicine",
+                description: "Obat yang menghidupkan kembali Pokémon yang pingsan.",
+                effect: "Menghidupkan kembali Pokémon yang pingsan dengan setengah HP.",
+                icon: "fas fa-arrows-rotate"
+            },
+            
+            // Barang pertempuran
+            {
+                id: 9,
+                name: "X Attack",
+                category: "battle",
+                description: "Meningkatkan stat Attack Pokémon selama pertempuran.",
+                effect: "Meningkatkan stat Attack Pokémon selama pertempuran.",
+                icon: "fas fa-bolt"
+            },
+            {
+                id: 10,
+                name: "X Defense",
+                category: "battle",
+                description: "Meningkatkan stat Defense Pokémon selama pertempuran.",
+                effect: "Meningkatkan stat Defense Pokémon selama pertempuran.",
+                icon: "fas fa-shield-alt"
+            },
+            {
+                id: 11,
+                name: "X Special",
+                category: "battle",
+                description: "Meningkatkan stat Special Attack Pokémon selama pertempuran.",
+                effect: "Meningkatkan stat Special Attack Pokémon selama pertempuran.",
+                icon: "fas fa-fire"
+            },
+            {
+                id: 12,
+                name: "Dire Hit",
+                category: "battle",
+                description: "Meningkatkan peluang serangan kritis selama pertempuran.",
+                effect: "Meningkatkan rasio serangan kritis Pokémon.",
+                icon: "fas fa-crosshairs"
+            },
+            {
+                id: 13,
+                name: "Guard Spec",
+                category: "battle",
+                description: "Mencegah stat Pokémon diturunkan oleh lawan.",
+                effect: "Melindungi dari penurunan stat oleh lawan selama 5 putaran.",
+                icon: "fas fa-user-shield"
+            },
+            
+            // Item kunci
+            {
+                id: 14,
+                name: "Bicycle",
+                category: "key",
+                description: "Sepeda yang memungkinkan perjalanan lebih cepat.",
+                effect: "Memungkinkan perjalanan dengan kecepatan tinggi di jalan yang sesuai.",
+                icon: "fas fa-bicycle"
+            },
+            {
+                id: 15,
+                name: "Old Rod",
+                category: "key",
+                description: "Pancingan tua untuk menangkap Pokémon air.",
+                effect: "Memancing Pokémon air tingkat rendah.",
+                icon: "fas fa-fish"
+            },
+            {
+                id: 16,
+                name: "Good Rod",
+                category: "key",
+                description: "Pancingan yang lebih baik untuk menangkap Pokémon air.",
+                effect: "Memancing Pokémon air tingkat menengah.",
+                icon: "fas fa-fishing-rod"
+            },
+            {
+                id: 17,
+                name: "Super Rod",
+                category: "key",
+                description: "Pancingan terbaik untuk menangkap Pokémon air langka.",
+                effect: "Memancing Pokémon air tingkat tinggi dan langka.",
+                icon: "fas fa-anchor"
+            },
+            {
+                id: 18,
+                name: "Itemfinder",
+                category: "key",
+                description: "Alat untuk menemukan item yang tersembunyi.",
+                effect: "Mendeteksi item tersembunyi di area sekitar.",
+                icon: "fas fa-search"
+            },
+            {
+                id: 19,
+                name: "S.S. Ticket",
+                category: "key",
+                description: "Tiket untuk menaiki kapal S.S. Anne.",
+                effect: "Memberikan akses ke S.S. Anne.",
+                icon: "fas fa-ticket"
+            },
+            
+            // Alat evolusi
+            {
+                id: 20,
+                name: "Fire Stone",
+                category: "evolution",
+                description: "Batu api yang berevolusi menjadi Pokémon api tertentu.",
+                effect: "Menyebabkan evolusi Pokémon seperti Vulpix, Growlithe, Eevee (menjadi Flareon).",
+                icon: "fas fa-fire"
+            },
+            {
+                id: 21,
+                name: "Water Stone",
+                category: "evolution",
+                description: "Batu air yang berevolusi menjadi Pokémon air tertentu.",
+                effect: "Menyebabkan evolusi Pokémon seperti Poliwhirl, Shellder, Eevee (menjadi Vaporeon).",
+                icon: "fas fa-tint"
+            },
+            {
+                id: 22,
+                name: "Thunder Stone",
+                category: "evolution",
+                description: "Batu petir yang berevolusi menjadi Pokémon listrik tertentu.",
+                effect: "Menyebabkan evolusi Pokémon seperti Pikachu, Eevee (menjadi Jolteon).",
+                icon: "fas fa-bolt"
+            },
+            {
+                id: 23,
+                name: "Leaf Stone",
+                category: "evolution",
+                description: "Batu daun yang berevolusi menjadi Pokémon tanaman tertentu.",
+                effect: "Menyebabkan evolusi Pokémon seperti Gloom, Weepinbell, Exeggcute.",
+                icon: "fas fa-leaf"
+            },
+            {
+                id: 24,
+                name: "Moon Stone",
+                category: "evolution",
+                description: "Batu bulan yang berevolusi menjadi Pokémon tertentu.",
+                effect: "Menyebabkan evolusi Pokémon seperti Nidorina, Nidorino, Clefairy, Jigglypuff.",
+                icon: "fas fa-moon"
+            },
+            {
+                id: 25,
+                name: "Sun Stone",
+                category: "evolution",
+                description: "Batu matahari yang berevolusi menjadi Pokémon tertentu.",
+                effect: "Menyebabkan evolusi Pokémon seperti Gloom (menjadi Bellossom), Sunkern.",
+                icon: "fas fa-sun"
+            },
+            {
+                id: 26,
+                name: "King's Rock",
+                category: "evolution",
+                description: "Item yang membuat Pokémon berevolusi saat ditukar.",
+                effect: "Menyebabkan evolusi saat ditukar untuk Pokémon seperti Poliwhirl, Slowpoke.",
+                icon: "fas fa-crown"
+            },
+            {
+                id: 27,
+                name: "Metal Coat",
+                category: "evolution",
+                description: "Lapisan logam yang membuat Pokémon berevolusi saat ditukar.",
+                effect: "Menyebabkan evolusi saat ditukar untuk Pokémon seperti Onix, Scyther.",
+                icon: "fas fa-shield-alt"
+            },
+            {
+                id: 28,
+                name: "Dragon Scale",
+                category: "evolution",
+                description: "Sisik naga yang membuat Seadra berevolusi saat ditukar.",
+                effect: "Menyebabkan evolusi saat ditukar untuk Seadra menjadi Kingdra.",
+                icon: "fas fa-dragon"
+            }
+        ];
+
+        // DOM Elements
+        const itemsContainer = document.getElementById('itemsContainer');
+        const searchInput = document.getElementById('searchInput');
+        const tabs = document.querySelectorAll('.tab');
+        
+        // Kategori terjemahan
+        const categoryLabels = {
+            'medicine': 'Obat-obatan',
+            'battle': 'Barang Pertempuran',
+            'key': 'Item Kunci',
+            'evolution': 'Alat Evolusi'
+        };
+        
+        // Warna kategori
+        const categoryColors = {
+            'medicine': '#FF6B6B',
+            'battle': '#4ECDC4',
+            'key': '#FFD166',
+            'evolution': '#9D4EDD'
+        };
+        
+        // Filter state
+        let currentCategory = 'all';
+        let currentSearch = '';
+        
+        // Render items berdasarkan kategori dan pencarian
+        function renderItems() {
+            // Filter items
+            let filteredItems = pokemonItems.filter(item => {
+                const matchesCategory = currentCategory === 'all' || item.category === currentCategory;
+                const matchesSearch = item.name.toLowerCase().includes(currentSearch.toLowerCase()) || 
+                                     item.description.toLowerCase().includes(currentSearch.toLowerCase()) ||
+                                     item.effect.toLowerCase().includes(currentSearch.toLowerCase());
+                return matchesCategory && matchesSearch;
+            });
+            
+            // Clear container
+            itemsContainer.innerHTML = '';
+            
+            // Jika tidak ada hasil
+            if (filteredItems.length === 0) {
+                itemsContainer.innerHTML = `
+                    <div class="no-results">
+                        <i class="fas fa-search fa-2x" style="margin-bottom: 15px;"></i>
+                        <p>Tidak ditemukan item Pokémon yang sesuai dengan pencarian Anda.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Render items
+            filteredItems.forEach(item => {
+                const itemCard = document.createElement('div');
+                itemCard.className = 'item-card';
+                
+                itemCard.innerHTML = `
+                    <div class="item-header ${item.category}" style="background-color: ${categoryColors[item.category]}">
+                        <div>
+                            <i class="${item.icon} fa-2x"></i>
+                        </div>
+                        <div class="item-type">${categoryLabels[item.category]}</div>
+                    </div>
+                    <div class="item-body">
+                        <h3 class="item-name">${item.name}</h3>
+                        <p class="item-description">${item.description}</p>
+                        <div class="item-effect">
+                            <strong>Efek:</strong> ${item.effect}
+                        </div>
+                    </div>
+                `;
+                
+                itemsContainer.appendChild(itemCard);
+            });
+        }
+        
+        // Event listeners untuk tabs
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Remove active class from all tabs
+                tabs.forEach(t => t.classList.remove('active'));
+                
+                // Add active class to clicked tab
+                tab.classList.add('active');
+                
+                // Update current category
+                currentCategory = tab.getAttribute('data-category');
+                
+                // Re-render items
+                renderItems();
+            });
+        });
+        
+        // Event listener untuk search input
+        searchInput.addEventListener('input', () => {
+            currentSearch = searchInput.value;
+            renderItems();
+        });
+        
+        // Inisialisasi render
+        renderItems();
+    </script>
+</body>
+</html>
